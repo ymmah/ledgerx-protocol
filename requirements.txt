@@ -1,2 +1,4 @@
 cffi==0.8.6
+msgpack-python==0.4.2
 pycparser==2.10
+simplejson==3.6.0
