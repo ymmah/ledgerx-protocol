@@ -9,7 +9,7 @@
 
 import unittest
 
-from ledgerx.utils import jsonapi
+from ledgerx.protocol.detail import jsonapi
 
 class TestUtils(unittest.TestCase):
 
