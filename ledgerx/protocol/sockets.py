@@ -72,6 +72,24 @@ def sub_socket(ctx, *args, **kwargs):
     """
     return create_socket(ctx, zmq.SUB, *args, **kwargs)
 
+def xsub_socket(ctx, *args, **kwargs):
+    """\
+    Create a 0MQ XSUB socket.
+
+    :param ctx: The 0MQ context which this socket will belong to.
+    :returns: A 0MQ socket.
+    """
+    return create_socket(ctx, zmq.XSUB, *args, **kwargs)
+
+def xpub_socket(ctx, *args, **kwargs):
+    """\
+    Create a 0MQ XPUB socket.
+
+    :param ctx: The 0MQ context which this socket will belong to.
+    :returns: A 0MQ socket.
+    """
+    return create_socket(ctx, zmq.XPUB, *args, **kwargs)
+
 def pub_socket(ctx, *args, **kwargs):
     """\
     Create a 0MQ PUB socket.
@@ -125,5 +143,4 @@ def secure_socket(sfn, secretkey, publickey, serverkey=None, *args, **kwargs):
     else:
         s.curve_server = True
     return s
-
 
