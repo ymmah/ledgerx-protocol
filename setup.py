@@ -7,6 +7,12 @@ import os
 from setuptools import setup, find_packages
 from ledgerx.protocol import __version__
 
+try:
+    import zmq
+    ZMQ_EXISTS = True
+except ImportError:
+    ZMQ_EXISTS = False
+
 BASE_DIR = os.path.dirname(__file__)
 README_PATH = os.path.join(BASE_DIR, 'README.md')
 REQS_PATH = os.path.join(BASE_DIR, 'requirements.txt')
@@ -14,6 +20,13 @@ REQS_PATH = os.path.join(BASE_DIR, 'requirements.txt')
 def __filter_requires(filename):
     # Unnecessary packages for exchange's normal operations
     unreqs = ['sphinx', 'theme', '-e']
+
+    # Remove zmq from requirements if it is already installed.
+    # This is necessary so that if a newer version is available we won't override
+    # it with an older version.
+    if ZMQ_EXISTS:
+        unreqs.append('pyzmq')
+
     with open(filename, 'rb') as fd:
         reqs = map(lambda req: req.strip(b'\n').decode(), fd.readlines())
     for unreq in unreqs:
