@@ -7,6 +7,7 @@
 :author: Amr Ali <amr@ledgerx.com>
 """
 
+import io
 import zmq
 
 from collections import Container
@@ -70,11 +71,11 @@ class KeyPair(Container):
         return cls(pub, priv)
 
     @classmethod
-    def load_certificate(cls, filepath):
+    def load_certificate(cls, file_or_bytes):
         """\
-        Read both the public and private keys from a certificate file.
+        Read both the public and private keys from a certificate file or bytes.
 
-        :param filepath: The path to the certificate file.
+        :param file_or_bytes: The path to the certificate file or bytes.
         :returns: :class:`KeyPair` if successful, None otherwise
         """
         privstring = 'PRIVATE KEY'
@@ -82,7 +83,12 @@ class KeyPair(Container):
         should_continue = True
         privkey = pubkey = None
 
-        with open(filepath, 'rb') as fd:
+        if isinstance(file_or_bytes, bytes):
+            fobj = io.BytesIO(file_or_bytes)
+        else:
+            fobj = open(file_or_bytes, 'rb')
+
+        with fobj as fd:
             while should_continue:
                 line = fd.readline()
                 if cls.header.format(name=privstring).encode('utf8') in line:

@@ -43,3 +43,7 @@ class TestKeyPair(unittest.TestCase):
         keypair1 = KeyPair.load_certificate(filepath)
         self.assertEqual(keypair0, keypair1)
 
+        with open(filepath, 'rb') as fd:
+            keypair1 = KeyPair.load_certificate(fd.read())
+        self.assertEqual(keypair0, keypair1)
+
