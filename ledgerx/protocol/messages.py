@@ -183,8 +183,12 @@ class BaseMessage(object, metaclass=MessageMeta):
         """
         fields = set(self.__fields__).intersection(other.__dict__).union(
                 other.__fields__)
-        for k in fields:
-            setattr(self, k, getattr(other, k))
+        try:
+            for k in fields:
+                setattr(self, k, getattr(other, k))
+        except AttributeError as ex:
+            raise AttributeError(
+                    "error occurred while setting '{}' attribute".format(k)) from ex
 
     def dumps(self):
         """\
