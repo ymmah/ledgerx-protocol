@@ -90,11 +90,12 @@ class MessageVersionMixin(object, metaclass=MessageMeta):
     """\
     A message that includes a version field.
     """
+    Version = Version('0.0.0')
 
     @MessageField
     def mversion(self):
         if not self._mversion:
-            self._mversion = Version('0.0.0')
+            self._mversion = self.Version
         return str(self._mversion)
 
     @mversion.setter
