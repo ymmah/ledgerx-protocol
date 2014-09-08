@@ -10,7 +10,7 @@
 import zmq
 
 def create_socket(ctx, stype, rtimeo=1000, reconn_ivl=1,
-        linger=1000):
+        linger=1000, send_hwm=0, recv_hwm=0):
     """\
     Create a 0MQ socket.
 
@@ -19,12 +19,16 @@ def create_socket(ctx, stype, rtimeo=1000, reconn_ivl=1,
     :param rtimeo: the 0MQ socket receive timeout in milliseconds.
     :param reconn_ivl: The 0MQ socket reconnection interval in milliseconds.
     :param linger: The 0MQ socket linger period in milliseconds.
+    :param send_hwm: The 0MQ socket send queue HWM. (Number of messages)
+    :param recv_hwm: The 0MQ socket receive queue HWM. (Number of messages)
     :returns: A 0MQ socket.
     """
     s = ctx.socket(stype)
     s.rcvtimeo = rtimeo
     s.reconnect_ivl = reconn_ivl
     s.linger = linger
+    s.sndhwm = send_hwm
+    s.rcvhwm = recv_hwm
     return s
 
 def dealer_socket(ctx, *args, **kwargs):

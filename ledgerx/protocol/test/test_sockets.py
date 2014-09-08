@@ -28,6 +28,8 @@ class TestSockets(unittest.TestCase):
         self.assertEqual(s.rcvtimeo, 1000)
         self.assertEqual(s.reconnect_ivl, 1)
         self.assertEqual(s.linger, 1000)
+        self.assertEqual(s.sndhwm, 0)
+        self.assertEqual(s.rcvhwm, 0)
 
     def test_sockets(self):
         self.__assert_sock_type('dealer', zmq.DEALER)
