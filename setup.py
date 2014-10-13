@@ -6,6 +6,7 @@ import os
 
 from setuptools import setup, find_packages
 from ledgerx.protocol import __version__
+from ledgerx.protocol import system
 
 BASE_DIR = os.path.dirname(__file__)
 README_PATH = os.path.join(BASE_DIR, 'README.md')
@@ -39,6 +40,7 @@ setup(
         maintainer_email = 'amr@ledgerx.com',
         url = 'https://ledgerx.com',
         zip_safe = False,
+        ext_modules = [system.time.time.ffi.verifier.get_extension()],
         install_requires = __filter_requires(REQS_PATH),
         namespace_packages = ['ledgerx'],
         packages = find_packages(exclude='test'),
