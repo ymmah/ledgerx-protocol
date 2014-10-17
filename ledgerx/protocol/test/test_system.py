@@ -10,7 +10,7 @@
 import os
 import unittest
 
-from types import MethodType
+from functools import partial
 from ledgerx.protocol.system import time
 
 class TestTime(unittest.TestCase):
@@ -18,8 +18,8 @@ class TestTime(unittest.TestCase):
     def test_interface(self):
         self.assertTrue(hasattr(time, 'realtime'))
         self.assertTrue(hasattr(time, 'monotonic'))
-        self.assertIsInstance(time.realtime, MethodType)
-        self.assertIsInstance(time.monotonic, MethodType)
+        self.assertIsInstance(time.realtime, partial)
+        self.assertIsInstance(time.monotonic, partial)
 
     def test_timers(self):
         self.assertIsInstance(time.realtime(), float)
