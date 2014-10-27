@@ -1,5 +1,4 @@
 msgpack-python==0.4.2
-pycparser==2.10
 pyzmq==14.4.0
 semantic-version==2.3.1
-simplejson==3.6.4
+simplejson==3.6.5
