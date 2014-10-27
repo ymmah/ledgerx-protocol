@@ -8,11 +8,11 @@ utilities.
 Resources
 ---------
 
-Website: http://ledgerx.com
+Website: https://ledgerx.com
 
 Support Email: support@ledgerx.com
 
-Git Repository: http://github.com/nybx/ledgerx-protocol
+Git Repository: https://github.com/nybx/ledgerx-protocol
 
 Copying
 -------
