@@ -5,7 +5,7 @@
 import os
 
 from setuptools import setup, find_packages
-from ledgerx.protocol import __version__
+from ledgerx.protocol.version import __version__
 
 BASE_DIR = os.path.dirname(__file__)
 README_PATH = os.path.join(BASE_DIR, 'README.md')
@@ -40,7 +40,7 @@ setup(
         url = 'https://ledgerx.com',
         zip_safe = False,
         install_requires = __filter_requires(REQS_PATH),
-        namespace_packages = ['ledgerx'],
+        namespace_packages = ['ledgerx', 'ledgerx.protocol'],
         packages = find_packages(exclude='test'),
         test_suite = 'ledgerx.protocol.tester.load_test_suite',
         platforms = 'POSIX',
