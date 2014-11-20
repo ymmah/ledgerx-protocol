@@ -7,6 +7,7 @@
 :author: Amr Ali <amr@ledgerx.com>
 """
 
+import io
 import unittest
 
 from ledgerx.protocol.crypto import KeyPair
@@ -45,5 +46,11 @@ class TestKeyPair(unittest.TestCase):
 
         with open(filepath, 'rb') as fd:
             keypair1 = KeyPair.load_certificate(fd.read())
+        self.assertEqual(keypair0, keypair1)
+
+    def test_keypair_io_interface(self):
+        buff = io.BytesIO()
+        keypair0 = KeyPair.generate().save_certificate(buff)
+        keypair1 = KeyPair.load_certificate(buff.getvalue())
         self.assertEqual(keypair0, keypair1)
 
