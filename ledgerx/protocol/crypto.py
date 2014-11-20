@@ -10,7 +10,22 @@
 import io
 import zmq
 
+from contextlib import contextmanager
 from collections import Container
+
+@contextmanager
+def closing(obj_support_close, call_close=True):
+    """\
+    A context manager to control whether we want to call ``close`` on the object.
+
+    :param obj_support_close: The object that supports the ``close`` method.
+    :param call_close: Whether to call ``close`` on the object. (default: True)
+    """
+    try:
+        yield obj_support_close
+    finally:
+        if call_close:
+            obj_support_close.close()
 
 class KeyPair(Container):
     """\
@@ -38,26 +53,36 @@ class KeyPair(Container):
             return other.public == self.public and other.private == self.private
         return False
 
-    def save_certificate(self, filepath):
+    def save_certificate(self, file_or_obj):
         """\
-        Generate a new CURVE key pair and store it in a certificate file.
+        Generate a new CURVE key pair and store it in a certificate file or write
+        it to a bytes buffer.
 
-        :param filepath: The path to the certificate file.
+        :param file_or_obj: The path to the certificate file or bytes buffer.
         :returns: :class:`KeyPair`
         """
         header = self.header + '\n'
         footer = self.footer + '\n'
 
-        with open(filepath, 'wb') as fd:
-            val = [header.format(name='PRIVATE KEY').encode('utf8'),
-                    self.private + b'\n',
-                    footer.format(name='PRIVATE KEY').encode('utf8')]
-            fd.writelines(val)
+        call_close = True
+        if hasattr(file_or_obj, 'writelines'):
+            fobj = file_or_obj
+            call_close = False
+        else:
+            fobj = open(file_or_obj, 'wb')
 
-            val = [header.format(name='PUBLIC KEY').encode('utf8'),
-                    self.public + b'\n',
-                    footer.format(name='PUBLIC KEY').encode('utf8')]
-            fd.writelines(val)
+        with closing(fobj, call_close) as fd:
+            if self.private:
+                val = [header.format(name='PRIVATE KEY').encode('utf8'),
+                        self.private + b'\n',
+                        footer.format(name='PRIVATE KEY').encode('utf8')]
+                fd.writelines(val)
+
+            if self.public:
+                val = [header.format(name='PUBLIC KEY').encode('utf8'),
+                        self.public + b'\n',
+                        footer.format(name='PUBLIC KEY').encode('utf8')]
+                fd.writelines(val)
         return self
 
     @classmethod
