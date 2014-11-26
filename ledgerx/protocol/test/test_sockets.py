@@ -27,6 +27,7 @@ class TestSockets(unittest.TestCase):
         self.assertIsInstance(s, zmq.Socket)
         self.assertEqual(s.rcvtimeo, 1000)
         self.assertEqual(s.reconnect_ivl, 1)
+        self.assertEqual(s.reconnect_ivl_max, 1000)
         self.assertEqual(s.linger, 1000)
         self.assertEqual(s.sndhwm, 0)
         self.assertEqual(s.rcvhwm, 0)
