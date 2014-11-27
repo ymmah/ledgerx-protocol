@@ -13,6 +13,7 @@ import logging
 
 from uuid import uuid4
 from types import MethodType
+from functools import partial
 from semantic_version import Version
 
 from ledgerx.protocol.system import realtime, monotonic
@@ -205,6 +206,15 @@ class BaseMessage(object, metaclass=MessageMeta):
         obj = {k: v for k, v in map(lambda x: (x, getattr(self, x)), self.__fields__) if v != None}
         return self.Serializer.dumps(obj)
 
+    def dumps_custom(self, serializer):
+        """\
+        A method to serialize members of this instance using a supplied serializer.
+
+        :param serializer: Any serializer object that implements pickle's interface.
+        :returns: The result of ``serializer``.dumps()
+        """
+        return self.__serialize_custom(serializer, self.dumps)
+
     def loads(self, data):
         """\
         A method to deserialize a message into this object.
@@ -215,6 +225,24 @@ class BaseMessage(object, metaclass=MessageMeta):
         [setattr(self, k, v)
                 for k, v in map(lambda x: (_asstr(x[0]), x[1]), obj.items())
                 if not k.startswith('_')]
+
+    def loads_custom(self, serializer, data):
+        """\
+        A method to deserialize a message into this object using a supplied serializer.
+
+        :param serializer: Any serializer object that implements pickle's interface.
+        :param data: A specially formatted string.
+        :returns: The result of ``serializer``.loads()
+        """
+        return self.__serialize_custom(serializer, partial(self.loads, data))
+
+    def __serialize_custom(self, serializer, func):
+        bck = self.Serializer
+        try:
+            self.Serializer = serializer
+            return func()
+        finally:
+            self.Serializer = bck
 
 class BaseMessageParser(object):
     """\
