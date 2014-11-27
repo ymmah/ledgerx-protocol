@@ -9,7 +9,7 @@
 
 import unittest
 
-from ledgerx.protocol.detail import jsonapi
+from ledgerx.protocol.detail import jsonapi, msgpack
 from ledgerx.protocol.messages import (
         MessageField, MessageMeta, BaseMessage,
         BaseMessageParser, BaseMessageStatus, JsonMessage,
@@ -74,6 +74,14 @@ class TestMessage(unittest.TestCase):
         self.assertTrue(msg_latent.fullfills(_TestMsg))
         self.assertTrue(msg_latent.fullfills(_TestLatentMsg))
         self.assertFalse(msg.fullfills(_TestLatentMsg))
+
+        self.assertEqual(msg.Serializer, jsonapi)
+        data = msg.dumps_custom(msgpack)
+        self.assertEqual(msg.Serializer, jsonapi)
+        self.assertEqual(data, msgpack.dumps({'test': 'test'}))
+        msg.loads_custom(msgpack, data)
+        self.assertEqual(msg.test, 'test')
+        self.assertEqual(msg.Serializer, jsonapi)
 
     def test_base_message_parser(self):
         with self.assertRaises(TypeError):
