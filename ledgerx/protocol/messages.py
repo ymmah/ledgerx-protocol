@@ -22,7 +22,10 @@ _asstr = lambda x: x.decode('utf8') if isinstance(x, bytes) else x
 
 def record_message_type(klass):
     """\
-    A decorator to build a append a message to the MessageTypes dictionary.
+    A decorator to append a message to the source module's MessageTypes dictionary.
+
+    :param klass: The message class to be appended to MessageTypes.
+    :returns: ``klass``
     """
     module = sys.modules[klass.__module__]
     if not hasattr(module, 'MessageTypes'):
@@ -34,7 +37,10 @@ class MessageField(property): pass
 
 class MessageMeta(abc.ABCMeta):
     """\
-    Keep track of MessageFields in __fields__.
+    An abstract metaclass for all messages that adds basic message mechanics
+    such as keeping track of properties decorated with `MessageField` and
+    adding a function to see if an interface of an object is compatible with
+    another.
     """
     attr_name = '__fields__'
 
@@ -67,7 +73,7 @@ class MessageMeta(abc.ABCMeta):
     @staticmethod
     def __fullfills(cls, other):
         """\
-        A method to check if `cls` fullfills `other`'s message interface.
+        A method to check if ``cls`` fullfills ``other``'s message interface.
         """
         return set(cls.__fields__).issuperset(other.__fields__)
 
@@ -145,7 +151,7 @@ class MessageTimeMixin(object, metaclass=MessageMeta):
 
     def refresh_timers(self):
         """\
-        Update both the timestamp and ticks fields.
+        Update both the ``timestamp`` and ``ticks`` fields.
         """
         self._timestamp = realtime()
         self._ticks = monotonic()
