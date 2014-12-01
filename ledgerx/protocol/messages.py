@@ -253,9 +253,12 @@ class BaseMessageParser(object):
     MessageVersions = {} # e.g., {version: <module>}
 
     @classmethod
-    def parse(cls, data):
+    def parse(cls, data, serializer=None):
         """\
         Parse data and determine message type and version.
+
+        :param data: A serialized form of the object to be parsed.
+        :param serializer: A serializer to use in parsing this message (default: the message class default).
 
         :returns:
             A new object of the supplied message type.
@@ -263,7 +266,10 @@ class BaseMessageParser(object):
         logger = logging.getLogger('ledgerx.protocol')
         try:
             obj = cls.ParentMessage()
-            obj.loads(data)
+            if not serializer:
+                obj.loads(data)
+            else:
+                obj.loads_custom(serializer, data)
         except:
             logger.exception("unable to parse a message")
             return cls.MessageStatus().client_error("unable to parse message")
