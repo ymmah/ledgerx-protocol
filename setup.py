@@ -5,11 +5,13 @@
 import os
 
 from setuptools import setup, find_packages
-from ledgerx.protocol.version import __version__
 
 BASE_DIR = os.path.dirname(__file__)
 README_PATH = os.path.join(BASE_DIR, 'README.md')
 REQS_PATH = os.path.join(BASE_DIR, 'requirements.txt')
+
+with open('ledgerx/protocol/version.py', 'rb') as fd:
+    exec(fd.read())
 
 def __filter_requires(filename):
     # Unnecessary packages for exchange's normal operations
