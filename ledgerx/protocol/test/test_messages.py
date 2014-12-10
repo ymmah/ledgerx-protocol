@@ -127,9 +127,12 @@ class TestMessage(unittest.TestCase):
         msg = __TestMsg()
         mid = msg.mid
         self.assertEqual(mid, msg.mid)
-        msg.mid = 'test'
+        with self.assertRaises(ValueError):
+            msg.mid = 'test'
+
+        msg.mid = 'a' * __TestMsg.FIELD_LENGTH
         self.assertNotEqual(mid, msg.mid)
-        self.assertEqual(msg.mid, 'test')
+        self.assertEqual(msg.mid, 'a' * __TestMsg.FIELD_LENGTH)
         self.assertTrue(msg.fullfills(MessageIDMixin))
 
     def test_message_version_mixin(self):
