@@ -82,6 +82,7 @@ class MessageIDMixin(object, metaclass=MessageMeta):
     """\
     A message that includes a UUID field according to RFC-4122.
     """
+    FIELD_LENGTH = len(uuid4().hex)
 
     @MessageField
     def mid(self):
@@ -91,6 +92,10 @@ class MessageIDMixin(object, metaclass=MessageMeta):
 
     @mid.setter
     def mid(self, val):
+        if not isinstance(val, (str, bytes)):
+            raise ValueError("message ID field must be a string")
+        if len(val) != self.FIELD_LENGTH:
+            raise ValueError("message ID field length mismatch")
         self._mid = val
 
 class MessageVersionMixin(object, metaclass=MessageMeta):
