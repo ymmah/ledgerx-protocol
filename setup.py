@@ -42,7 +42,7 @@ setup(
         url = 'https://ledgerx.com',
         zip_safe = True,
         install_requires = __filter_requires(REQS_PATH),
-        namespace_packages = ['ledgerx'],
+        namespace_packages = ['ledgerx', 'ledgerx.protocol'],
         packages = find_packages(exclude=['*test*']),
         test_suite = 'ledgerx.protocol.tester.load_test_suite',
         platforms = 'POSIX',
