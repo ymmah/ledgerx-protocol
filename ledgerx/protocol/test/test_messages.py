@@ -11,10 +11,18 @@ import unittest
 
 from ledgerx.protocol.detail import jsonapi, msgpack
 from ledgerx.protocol.messages import (
-        MessageField, MessageMeta, BaseMessage,
-        BaseMessageParser, BaseMessageStatus, JsonMessage,
-        MsgPackMessage, MessageIDMixin, MessageVersionMixin,
-        MessageTypeMixin, MessageTimeMixin)
+        MessageField,
+        MessageComplexField,
+        MessageMeta,
+        BaseMessage,
+        BaseMessageParser,
+        BaseMessageStatus,
+        JsonMessage,
+        MsgPackMessage,
+        MessageIDMixin,
+        MessageVersionMixin,
+        MessageTypeMixin,
+        MessageTimeMixin)
 
 class TestMessage(unittest.TestCase):
 
@@ -82,6 +90,75 @@ class TestMessage(unittest.TestCase):
         msg.loads_custom(msgpack, data)
         self.assertEqual(msg.test, 'test')
         self.assertEqual(msg.Serializer, jsonapi)
+
+    def test_message_complex_field(self):
+        class Struct(object):
+            def __init__(self, **entries):
+                self.__dict__.update(entries)
+        class _TestParentMsg(BaseMessage, MessageTypeMixin):
+            Serializer = jsonapi
+            mversion = '0.0.0'
+
+            def reply(self, *args, **kwargs):
+                return _TestStatus()
+        class _TestStatus(_TestParentMsg):
+            def set(self, code, message, data):
+                self.status = code
+                self.message = message
+                self.data = data
+            def client_error(self, message):
+                self.message = message
+                return self
+            def server_error(self, message):
+                self.message = message
+                return self
+        class _TestMsg(_TestParentMsg):
+            Type = 'complex_message'
+            @MessageComplexField
+            def complex(self): return self._complex
+            @complex.setter
+            def complex(self, val): self._complex = val
+            @MessageComplexField
+            def complex_list(self): return self._complex_list
+            @complex_list.setter
+            def complex_list(self, val): self._complex_list = val
+        class _TestNestedMsg(_TestParentMsg):
+            Type = 'nested_message'
+            @MessageField
+            def name(self): return self._name
+            @name.setter
+            def name(self, val): self._name = val
+
+        MessageTypes = {
+                'complex_message': _TestMsg,
+                'nested_message': _TestNestedMsg
+                }
+        class _TestMsgParser(BaseMessageParser):
+            ParentMessage = _TestParentMsg
+            MessageStatus = _TestStatus
+            MessageVersions = {'0.0.0': Struct(MessageTypes=MessageTypes)}
+
+        nested_msg1 = _TestNestedMsg()
+        nested_msg1.name = 'test1'
+        nested_msg2 = _TestNestedMsg()
+        nested_msg2.name = 'test2'
+        nested_msg3 = _TestNestedMsg()
+        nested_msg3.name = 'test3'
+        msg = _TestMsg()
+        msg.complex = nested_msg1
+        msg.complex_list = [nested_msg1, nested_msg2, nested_msg3]
+        data = msg.dumps()
+        obj = _TestMsgParser.parse(data)
+        self.assertIsInstance(obj, _TestMsg)
+        self.assertIsInstance(obj.complex, _TestNestedMsg)
+        self.assertEqual(obj.complex.name, 'test1')
+        self.assertIsInstance(obj.complex_list, list)
+        for c in obj.complex_list:
+            with self.subTest(c=c):
+                self.assertIsInstance(c, _TestNestedMsg)
+        self.assertEqual(obj.complex_list[0].name, 'test1')
+        self.assertEqual(obj.complex_list[1].name, 'test2')
+        self.assertEqual(obj.complex_list[2].name, 'test3')
 
     def test_base_message_parser(self):
         with self.assertRaises(TypeError):
