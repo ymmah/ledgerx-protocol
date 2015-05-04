@@ -14,6 +14,7 @@ import logging
 from uuid import uuid4
 from types import MethodType
 from functools import partial
+from collections import Iterable
 from semantic_version import Version
 
 from ledgerx.protocol.system import realtime, monotonic
@@ -34,7 +35,17 @@ def record_message_type(klass):
     module.MessageTypes.update({klass.Type: klass})
     return klass
 
-class MessageField(property): pass
+class MessageField(property):
+    """\
+    Decorate message fields with this property descended class to mark it
+    for serialization.
+    """
+
+class MessageComplexField(MessageField):
+    """\
+    Same as ``MessageField`` except it means that the field will contain a
+    message class (or a list of them) that inherits from ``BaseMessage``.
+    """
 
 class MessageMeta(abc.ABCMeta):
     """\
@@ -44,18 +55,38 @@ class MessageMeta(abc.ABCMeta):
     another.
     """
     attr_name = '__fields__'
+    complex_attr_name = '__complex__fields__'
 
     def __new__(cls, name, bases, attrs):
-        mfields = filter(lambda x:
+        # Load MessageField fields
+        mfields = list(filter(lambda x:
                 not x[0].startswith('_') and
-                type(x[1]) is MessageField, attrs.items())
+                isinstance(x[1], MessageField), attrs.items()))
+
+        # Load MessageComplexField fields
+        cfields = list(filter(
+                lambda x: isinstance(x[1], MessageComplexField), mfields))
+
         mfields = list(map(lambda x: x[0], mfields))
+        cfields = list(map(lambda x: x[0], cfields))
+
         if cls.attr_name not in attrs:
             attrs[cls.attr_name] = []
+        if cls.complex_attr_name not in attrs:
+            attrs[cls.complex_attr_name] = []
+
+        # Extend __fields__ and __complex__fields__ list with bases'
+        # __fields__ and __complex__fields__ lists
         for base in bases:
             if cls.attr_name in base.__dict__:
                 attrs[cls.attr_name].extend(base.__fields__)
+            if cls.complex_attr_name in base.__dict__:
+                attrs[cls.complex_attr_name].extend(base.__complex__fields__)
+
+        # Extend __fields__ list with loaded MessageField fields
         attrs[cls.attr_name].extend(mfields)
+        # Extend __complex__fields__ with loaded MessageComplexField fields
+        attrs[cls.complex_attr_name].extend(cfields)
         return super().__new__(cls, name, bases, attrs)
 
     def __init__(cls, name, bases, attrs):
