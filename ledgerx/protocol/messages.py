@@ -311,6 +311,8 @@ class BaseMessageParser(object):
             A new object of the supplied message type.
         """
         logger = logging.getLogger('ledgerx.protocol')
+
+        # Deserialize message
         try:
             obj = cls.ParentMessage()
             if not serializer:
@@ -321,6 +323,7 @@ class BaseMessageParser(object):
             logger.exception("unable to parse a message")
             return cls.MessageStatus().client_error("unable to parse message")
 
+        # Determine message version
         try:
             if obj.mversion not in cls.MessageVersions:
                 return obj.reply().client_error("unsupported message version")
@@ -331,10 +334,25 @@ class BaseMessageParser(object):
             return obj.reply().server_error(
                     "error occurred while parsing message version")
 
+        # Determine message type
         mtypes = cls.MessageVersions[obj.mversion].MessageTypes
         if obj.type not in mtypes:
             return obj.reply().client_error("unsupported message type")
         mobj = mtypes[obj.type]()
+
+        # Resolve complex fields
+        for field in mobj.__complex__fields__:
+            field_value = getattr(obj, field)
+
+            if isinstance(field_value, list):
+                o = cls.ParentMessage()
+                res = []
+                for item in field_value:
+                    res.append(cls.parse(item, serializer))
+                setattr(obj, field, res)
+            else:
+                setattr(obj, field, cls.parse(field_value, serializer))
+
         mobj.augment(obj)
         return mobj
 
