@@ -240,6 +240,17 @@ class BaseMessage(object, metaclass=MessageMeta):
         """
         self.finalize()
         obj = {k: v for k, v in map(lambda x: (x, getattr(self, x)), self.__fields__) if v != None}
+
+        # Serialize complex fields
+        for k, v in filter(lambda x: x[0] in self.__complex__fields__, obj.items()):
+            items = []
+            if isinstance(v, Iterable): # Complex field is a list of complex objects
+                for item in v:
+                    items.append(item.dumps())
+                obj[k] = items
+            else: # Complex field contains a single complex object
+                obj[k] = v.dumps()
+
         return self.Serializer.dumps(obj)
 
     def dumps_custom(self, serializer):
