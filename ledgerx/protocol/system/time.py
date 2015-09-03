@@ -13,8 +13,12 @@ from functools import partial
 
 # NOTE: Using partial is in fact faster than passing time.CLOCK_XXX to
 # time.clock_gettime on every call.
-realtime = partial(time.clock_gettime, time.CLOCK_REALTIME)
-monotonic = partial(time.clock_gettime, time.CLOCK_MONOTONIC_RAW)
+if getattr(time, 'clock_gettime', None):
+    realtime = partial(time.clock_gettime, time.CLOCK_REALTIME)
+    monotonic = partial(time.clock_gettime, time.CLOCK_MONOTONIC_RAW)
+else:
+    realtime = time.time
+    monotonic = time.monotonic
 
 __all__ = ['realtime', 'monotonic']
 
