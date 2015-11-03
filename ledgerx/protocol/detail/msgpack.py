@@ -9,7 +9,7 @@
 
 from msgpack import *
 
-def loads(data, max_buffer_size=4096, **kwargs):
+def loads(data, max_buffer_size=65536, **kwargs):
     """\
     A secure version of :funcs:`msgpack.loads`.
     """
