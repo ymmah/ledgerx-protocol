@@ -202,6 +202,8 @@ class TestMessage(unittest.TestCase):
     def test_message_id_mixin(self):
         class __TestMsg(MessageIDMixin): pass
         msg = __TestMsg()
+        self.assertEqual(msg.mid, None)
+        msg.generate_mid()
         mid = msg.mid
         self.assertEqual(mid, msg.mid)
         with self.assertRaises(ValueError):
@@ -211,6 +213,17 @@ class TestMessage(unittest.TestCase):
         self.assertNotEqual(mid, msg.mid)
         self.assertEqual(msg.mid, 'a' * __TestMsg.FIELD_LENGTH)
         self.assertTrue(msg.fullfills(MessageIDMixin))
+
+    def test_message_id_mixin_generate_mid_method(self):
+        class __TestMsg(MessageIDMixin): pass
+        msg = __TestMsg()
+        initial_mid = msg.mid
+        retval_mid = msg.generate_mid()
+        final_mid = msg.mid
+        self.assertNotEqual(initial_mid, final_mid)
+        self.assertNotEqual(initial_mid, retval_mid)
+        self.assertEqual(retval_mid, final_mid)
+        self.assertEqual(msg.mid, final_mid)
 
     def test_message_version_mixin(self):
         class __TestMsg(MessageVersionMixin): pass

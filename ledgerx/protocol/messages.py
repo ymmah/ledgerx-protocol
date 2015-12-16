@@ -117,8 +117,6 @@ class MessageIDMixin(object, metaclass=MessageMeta):
 
     @MessageField
     def mid(self):
-        if not self._mid:
-            self._mid = uuid4().hex
         return self._mid
 
     @mid.setter
@@ -128,6 +126,15 @@ class MessageIDMixin(object, metaclass=MessageMeta):
         if len(val) != self.FIELD_LENGTH:
             raise ValueError("message ID field length mismatch")
         self._mid = val
+
+    def generate_mid(self):
+        """
+        Generate an MID value for this message.
+
+        :returns: The newly generated ID.
+        """
+        self._mid = uuid4().hex
+        return self._mid
 
 class MessageVersionMixin(object, metaclass=MessageMeta):
     """\
