@@ -129,11 +129,11 @@ class MessageIDMixin(object, metaclass=MessageMeta):
 
     def generate_mid(self):
         """
-        Generate an MID value for this message. MID is only generated when
-        current MID is None (not yet generated).
+        Generate an MID value for this message.
+
+        :returns: The newly generated ID.
         """
-        if not self._mid:
-            self._mid = uuid4().hex
+        self._mid = uuid4().hex
         return self._mid
 
 class MessageVersionMixin(object, metaclass=MessageMeta):
