@@ -121,10 +121,11 @@ class MessageIDMixin(object, metaclass=MessageMeta):
 
     @mid.setter
     def mid(self, val):
-        if not isinstance(val, (str, bytes)):
-            raise ValueError("message ID field must be a string")
-        if len(val) != self.FIELD_LENGTH:
-            raise ValueError("message ID field length mismatch")
+        if val != None:
+            if not isinstance(val, (str, bytes)):
+                raise ValueError("message ID field must be a string")
+            if len(val) != self.FIELD_LENGTH:
+                raise ValueError("message ID field length mismatch")
         self._mid = val
 
     def generate_mid(self):
