@@ -214,6 +214,12 @@ class TestMessage(unittest.TestCase):
         self.assertEqual(msg.mid, 'a' * __TestMsg.FIELD_LENGTH)
         self.assertTrue(msg.fullfills(MessageIDMixin))
 
+    def test_message_id_mixin_allows_none_value(self):
+        class __TestMsg(MessageIDMixin): pass
+        msg = __TestMsg()
+        msg.mid = None
+        self.assertEqual(msg.mid, None)
+
     def test_message_id_mixin_generate_mid_method(self):
         class __TestMsg(MessageIDMixin): pass
         msg = __TestMsg()
