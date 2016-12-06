@@ -20,6 +20,8 @@ from ledgerx.protocol.messages import (
         JsonMessage,
         MsgPackMessage,
         MessageIDMixin,
+        MessageMPIDMixin,
+        MessageCIDMixin,
         MessageVersionMixin,
         MessageTypeMixin,
         MessageTimeMixin)
@@ -230,6 +232,30 @@ class TestMessage(unittest.TestCase):
         self.assertNotEqual(initial_mid, retval_mid)
         self.assertEqual(retval_mid, final_mid)
         self.assertEqual(msg.mid, final_mid)
+
+    def test_message_mpid_mixin(self):
+        class __TestMsg(MessageMPIDMixin): pass
+        msg = __TestMsg()
+        with self.assertRaises(ValueError):
+            msg.mpid = '0'
+        self.assertIsNone(msg.mpid)
+        msg.mpid = 123
+        self.assertEqual(msg.mpid, 123)
+        msg.mpid = None
+        self.assertIsNone(msg.mpid)
+        self.assertTrue(msg.fullfills(MessageMPIDMixin))
+
+    def test_message_cid_mixin(self):
+        class __TestMsg(MessageCIDMixin): pass
+        msg = __TestMsg()
+        with self.assertRaises(ValueError):
+            msg.cid = '0'
+        self.assertIsNone(msg.cid)
+        msg.cid = 123
+        self.assertEqual(msg.cid, 123)
+        msg.cid = None
+        self.assertIsNone(msg.cid)
+        self.assertTrue(msg.fullfills(MessageCIDMixin))
 
     def test_message_version_mixin(self):
         class __TestMsg(MessageVersionMixin): pass
