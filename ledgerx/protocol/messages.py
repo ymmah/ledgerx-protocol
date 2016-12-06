@@ -137,6 +137,36 @@ class MessageIDMixin(object, metaclass=MessageMeta):
         self._mid = uuid4().hex
         return self._mid
 
+class MessageMPIDMixin(object, metaclass=MessageMeta):
+    """\
+    A message that includes a market participant ID field.
+    """
+
+    @MessageField
+    def mpid(self):
+        return self._mpid
+
+    @mpid.setter
+    def mpid(self, val):
+        if val is not None and not isinstance(val, int):
+            raise ValueError("MPID field must be an integer")
+        self._mpid = val
+
+class MessageCIDMixin(object, metaclass=MessageMeta):
+    """\
+    A message that includes a client ID field.
+    """
+
+    @MessageField
+    def cid(self):
+        return self._cid
+
+    @cid.setter
+    def cid(self, val):
+        if val is not None and not isinstance(val, int):
+            raise ValueError("CID field must be an integer")
+        self._cid = val
+
 class MessageVersionMixin(object, metaclass=MessageMeta):
     """\
     A message that includes a version field.
