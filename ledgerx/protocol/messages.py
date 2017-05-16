@@ -135,6 +135,12 @@ class MessageIDMixin(object, metaclass=MessageMeta):
         :returns: The newly generated ID.
         """
         self._mid = uuid4().hex
+        for field in self.__complex__fields__:
+            complex_vs = getattr(self, field)
+            for v in complex_vs:
+                if isinstance(v, MessageIDMixin):
+                    v.generate_mid()
+
         return self._mid
 
 class MessageMPIDMixin(object, metaclass=MessageMeta):

@@ -233,6 +233,33 @@ class TestMessage(unittest.TestCase):
         self.assertEqual(retval_mid, final_mid)
         self.assertEqual(msg.mid, final_mid)
 
+    def test_message_id_mixin_generate_mid_method_complex(self):
+        class __TestMsg(MessageIDMixin):
+            @MessageComplexField
+            def msgs(self):
+                if not self._msgs:
+                    self._msgs = []
+                return self._msgs
+            @msgs.setter
+            def msgs(self, val):
+                self._msgs = val
+        class __ChildMsg(MessageIDMixin): pass
+
+        msg = __TestMsg()
+        cmsg1 = __ChildMsg()
+        cmsg2 = __ChildMsg()
+        msg.msgs = [cmsg1, cmsg2]
+        initial_mid = msg.mid
+        c1_initial_mid = cmsg1.mid
+        c2_initial_mid = cmsg2.mid
+        msg.generate_mid()
+        final_mid = msg.mid
+        c1_final_mid = cmsg1.mid
+        c2_final_mid = cmsg2.mid
+        self.assertNotEqual(initial_mid, final_mid)
+        self.assertNotEqual(c1_initial_mid, c1_final_mid)
+        self.assertNotEqual(c2_initial_mid, c2_final_mid)
+
     def test_message_mpid_mixin(self):
         class __TestMsg(MessageMPIDMixin): pass
         msg = __TestMsg()
